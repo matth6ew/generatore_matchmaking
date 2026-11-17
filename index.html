@@ -3,9 +3,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>赛程生成器</title>
 <style>
-:root{--bg:#f6f6f3;--fg:#1d1d1b;--mut:#6b6b66;--card:#fff;--bd:#dedcd4;--ac:#2b6cb0;--ok:#1a7f4b;--bad:#b42318;--rest:#f3efe2;--soft:#eef4fb;
+:root{--bg:#f6f6f3;--fg:#1d1d1b;--mut:#6b6b66;--card:#fff;--bd:#dedcd4;--ac:#2b6cb0;--ok:#1a7f4b;--bad:#b42318;--rest:#f3efe2;--soft:#eef4fb;--cbg:#fde2df;--cfg:#9b1c10;--gbg:#ffe0b0;--gfg:#7a4300;--obg:#e4d9fb;--ofg:#52289e;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
-@media (prefers-color-scheme:dark){:root{--bg:#1a1a18;--fg:#ecebe6;--mut:#a3a29b;--card:#242422;--bd:#3d3d39;--ac:#6ea8e8;--ok:#5cc58b;--bad:#ff8a7a;--rest:#33311f;--soft:#202a36;color-scheme:dark}}
+@media (prefers-color-scheme:dark){:root{--bg:#1a1a18;--fg:#ecebe6;--mut:#a3a29b;--card:#242422;--bd:#3d3d39;--ac:#6ea8e8;--ok:#5cc58b;--bad:#ff8a7a;--rest:#33311f;--soft:#202a36;--cbg:#4a2320;--cfg:#ffb4aa;--gbg:#4d3510;--gfg:#ffd08a;--obg:#34285a;--ofg:#cfbaff;color-scheme:dark}}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,-apple-system,"PingFang SC","Microsoft YaHei",Segoe UI,Roboto,sans-serif}
 main{max-width:980px;margin:0 auto;padding:16px}
 header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
@@ -38,7 +38,22 @@ button:disabled{opacity:.6;cursor:wait}
 th,td{border:1px solid var(--bd);padding:6px 8px;text-align:center;white-space:nowrap}th{background:var(--rest);position:sticky;top:0}
 tbody tr:nth-child(even) td:not(.r){background:color-mix(in srgb,var(--bg) 60%,var(--card))}
 td.r{background:var(--rest)}td.e{color:var(--mut)}
-.m.hl{background:var(--ac);color:#fff;border-radius:4px;padding:1px 5px}
+.m.hl{background:var(--soft);outline:2px solid var(--ac);outline-offset:1px;border-radius:4px;padding:1px 5px;font-weight:700}
+.m.rg,.m.ro{border-radius:4px;padding:1px 5px;font-weight:700}
+.m.rg{background:var(--gbg);color:var(--gfg)}.m.ro{background:var(--obg);color:var(--ofg)}
+.m.rg.ro{box-shadow:0 0 0 2px var(--ofg)}
+td.cf{background:var(--cbg)!important;box-shadow:inset 0 0 0 2px var(--cfg)}
+.banner{padding:10px 14px;border-radius:10px;border-left:5px solid var(--bd);font-size:15px}
+.banner.good{background:color-mix(in srgb,var(--ok) 14%,var(--card));border-color:var(--ok)}
+.banner.warn{background:color-mix(in srgb,var(--bad) 12%,var(--card));border-color:var(--bad)}
+.legend{display:flex;gap:8px 16px;flex-wrap:wrap;font-size:13px;margin:0 0 8px;align-items:center}
+.legend span.sw{display:inline-block;width:14px;height:14px;border-radius:4px;margin-right:5px;vertical-align:-2px}
+.sw.k-g,.plist div.k-g{background:var(--gbg);color:var(--gfg)}.sw.k-o,.plist div.k-o{background:var(--obg);color:var(--ofg)}.sw.k-c,.plist div.k-c{background:var(--cbg);color:var(--cfg)}
+.plist div.k-g{border-left:5px solid var(--gfg)}.plist div.k-o{border-left:5px solid var(--ofg)}.plist div.k-c{border-left:5px solid var(--cfg)}
+.plist div.extra{display:none}.plist.open div.extra{display:flex}.plist #plb{margin-top:8px}
+.plist div{cursor:pointer}.plist div:hover{outline:1px solid var(--ac)}
+.tm th:first-child{text-align:left}.tm tbody th{position:static;background:var(--rest)}
+.flash{animation:fl 1.8s}@keyframes fl{0%,55%{box-shadow:inset 0 0 0 3px var(--ac)}100%{box-shadow:inset 0 0 0 0 transparent}}
 .teams{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:6px 14px;font-size:14px}
 textarea{width:100%;height:110px;font:12px monospace;background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-radius:8px;padding:8px}
 @media print{header,.card:first-of-type,.bar,textarea,.foot,#xl{display:none}body{background:#fff}}
@@ -54,12 +69,13 @@ textarea{width:100%;height:110px;font:12px monospace;background:var(--bg);color:
 <span class="chips"><button type="button" data-p="1" data-i="p1"></button><button type="button" data-p="2" data-i="p2"></button><button type="button" data-p="3" data-i="p3"></button></span></label>
 </div>
 <div class="opts">
-<label class="chk"><input type="checkbox" id="rest" checked><span data-i="rest"></span></label>
 <label class="chk"><input type="checkbox" id="auto" checked><span data-i="auto"></span></label>
+<label class="chk"><input type="checkbox" id="rest"><span data-i="rest"></span></label>
 </div>
 <button id="go" data-i="go"></button>
 <div class="msg" id="msg"></div>
 <div class="stats" id="stats" hidden></div>
+<div class="adv plist" id="plist" hidden></div>
 <div class="adv" id="adv" hidden></div>
 </div>
 <div id="out"></div>
@@ -73,13 +89,14 @@ teams:'队伍数量',teamsH:'参赛队伍总数',rounds:'轮数',roundsH:'一共
 groups:'分组',groupsH:'如 1-7, 8-14；留空则所有队伍互相对战',p1:'全部一组',p2:'平分两组',p3:'平分三组',
 rest:'允许轮空',auto:'自动寻找最少游戏数',go:'生成赛程',
 calc:g=>'计算中… 正在尝试 '+g+' 个游戏',needGroup:'至少需要一个包含 2 支队伍的分组。',
-sMin:'理论最少游戏数',sUsed:'实际使用游戏数',sOpp:'重复对手',sRep:'重复游戏/冲突',
-okSol:(g,G)=>'✓ 方案已生成，使用 '+g+' 个游戏'+(g<G?'（少于你设定的 '+G+' 个）':'')+'：各队没有重复游戏，同一轮中每个游戏只有一对队伍。',
-badSol:(a,b)=>'无法避免 '+a+' 次队伍重复游戏、'+b+' 次同轮游戏冲突。',oppOk:'✓ 没有重复对手。',oppBad:n=>'重复对阵：'+n+' 次。',
+sMin:'理论最少游戏数',sUsed:'实际使用游戏数',sOpp:'重复对手',sRepG:'队伍重复玩同一游戏',sConf:'同轮同一游戏被占两次',
+okSol:(g,G)=>'✓ 完美方案，使用 '+g+' 个游戏'+(g<G?'（少于你设定的 '+G+' 个）':'')+'：没有重复游戏，也没有同轮冲突。',
+badSol:(a,b)=>'方案中有问题：请看下方列表和表中的彩色标记。',oppOk:'✓ 没有重复对手。',oppBad:n=>'重复对阵：'+n+' 次。',
 odd:n=>'有 '+n+' 支队伍的分组为奇数，无法避免轮空。',
 advT:'如何解决',advS:'（优先级：先改分组，再改轮数，最后才增加游戏；队伍数量不变）',apply:'应用',
-aG:c=>'将分组改为“'+c+'”（轮数和游戏数不变）',aR:r=>'将轮数减少到 '+r+'（分组和游戏数不变）',aN:g=>'将游戏数增加到 '+g+'（分组和轮数不变）',
+aRest:'勾选“允许轮空”（其他参数不变）',aG:c=>'将分组改为“'+c+'”（轮数和游戏数不变）',aR:r=>'将轮数减少到 '+r+'（分组和游戏数不变）',aN:g=>'将游戏数增加到 '+g+'（分组和轮数不变）',
 aC:(c,r)=>'分组改为“'+c+'”，并将轮数改为 '+r,aF:g=>'尝试 '+g+' 个游戏（已满足理论下限，但搜索未找到方案；也可再点一次生成）',
+sProb:'问题数',pMore:n=>'显示其余 '+n+' 条',pLess:'收起',lgG:'队伍重复同一游戏',lgO:'重复对阵',lgC:'同轮同一游戏被占两次',pT:'发现的问题（点击可在表中定位）',pConf:(r,g,ps)=>'第 '+r+' 轮，游戏 '+g+'：两对队伍同时占用（'+ps+'）',pRepG:(t,g,r1,r2)=>'队 '+t+' 重复游戏 '+g+'（第 '+r1+' 轮和第 '+r2+' 轮）',pRepO:(p,r1,r2)=>'重复对阵 '+p+'（第 '+r1+' 轮和第 '+r2+' 轮）',
 tT:'赛程表',oT:'各队游戏顺序',xT:'复制到 Excel',turn:'轮次',gm:'游戏',restC:'轮空',restW:'轮空',hl:'高亮队伍：',none:'无',copy:'复制',copied:'已复制 ✓',print:'打印',team:'队',
 foot:'每个游戏在每一轮最多只接待一对队伍（所有分组共用）。分组用区间表示，用逗号分隔（如 1-4, 5-8, 9-12）；未列出的队伍互相对战。再次点击“生成赛程”可得到另一种方案。'},
 it:{
@@ -88,13 +105,14 @@ teams:'Numero squadre',teamsH:'Totale squadre in gara',rounds:'Numero turni',rou
 groups:'Gruppi forzati',groupsH:'Es. 1-7, 8-14; vuoto = tutti contro tutti',p1:'Un solo gruppo',p2:'Due gruppi',p3:'Tre gruppi',
 rest:'Riposo consentito',auto:'Cerca il minimo di giochi',go:'Genera turni',
 calc:g=>'Calcolo in corso… provo con '+g+' giochi',needGroup:'Serve almeno un gruppo di 2 squadre.',
-sMin:'Minimo teorico giochi',sUsed:'Giochi usati',sOpp:'Avversari ripetuti',sRep:'Ripetizioni/conflitti',
-okSol:(g,G)=>'✓ Soluzione con '+g+' giochi'+(g<G?' (meno dei '+G+' indicati)':'')+': nessun gioco ripetuto per le squadre e mai due coppie nello stesso gioco nello stesso turno.',
-badSol:(a,b)=>'Non è stato possibile evitare '+a+' ripetizioni di gioco e '+b+' conflitti di gioco nello stesso turno.',oppOk:'✓ Nessun avversario ripetuto.',oppBad:n=>'Incontri ripetuti: '+n+'.',
+sMin:'Minimo teorico giochi',sUsed:'Giochi usati',sOpp:'Avversari ripetuti',sRepG:'Giochi ripetuti da una squadra',sConf:'Stesso gioco due volte nel turno',
+okSol:(g,G)=>'✓ Soluzione perfetta con '+g+' giochi'+(g<G?' (meno dei '+G+' indicati)':'')+': nessun gioco ripetuto e nessun conflitto nei turni.',
+badSol:(a,b)=>'La soluzione ha dei problemi: guarda l’elenco qui sotto e le celle colorate nella tabella.',oppOk:'✓ Nessun avversario ripetuto.',oppBad:n=>'Incontri ripetuti: '+n+'.',
 odd:n=>'Il gruppo di '+n+' squadre è dispari: il riposo non si può evitare.',
 advT:'Come risolvere',advS:'(in ordine: prima i gruppi, poi i turni, infine i giochi; le squadre restano fisse)',apply:'Applica',
-aG:c=>'Cambia i gruppi in «'+c+'» (turni e giochi invariati)',aR:r=>'Riduci i turni a '+r+' (gruppi e giochi invariati)',aN:g=>'Aumenta i giochi a '+g+' (gruppi e turni invariati)',
+aRest:'Attiva «Riposo consentito» (altri parametri invariati)',aG:c=>'Cambia i gruppi in «'+c+'» (turni e giochi invariati)',aR:r=>'Riduci i turni a '+r+' (gruppi e giochi invariati)',aN:g=>'Aumenta i giochi a '+g+' (gruppi e turni invariati)',
 aC:(c,r)=>'Gruppi «'+c+'» e '+r+' turni',aF:g=>'Prova con '+g+' giochi (il minimo teorico è rispettato ma la ricerca non ha trovato soluzione; puoi anche rigenerare)',
+sProb:'Problemi',pMore:n=>'Mostra altri '+n,pLess:'Mostra meno',lgG:'Gioco già fatto dalla squadra',lgO:'Incontro già giocato',lgC:'Due coppie nello stesso gioco',pT:'Problemi trovati (clicca per vederli nella tabella)',pConf:(r,g,ps)=>'Turno '+r+', Gioco '+g+': due coppie insieme ('+ps+')',pRepG:(t,g,r1,r2)=>'Sq '+t+' ripete il Gioco '+g+' (turni '+r1+' e '+r2+')',pRepO:(p,r1,r2)=>'Incontro ripetuto '+p+' (turni '+r1+' e '+r2+')',
 tT:'Tabella dei turni',oT:'Ordine dei giochi per squadra',xT:'Copia in Excel',turn:'Turno',gm:'Gioco',restC:'Riposa',restW:'riposo',hl:'Evidenzia squadra:',none:'nessuna',copy:'Copia',copied:'Copiato ✓',print:'Stampa',team:'Sq',
 foot:'Ogni gioco ospita al massimo una coppia per turno, in tutti i gruppi. I gruppi si scrivono come intervalli separati da virgola (es. 1-4, 5-8, 9-12). Le squadre non nominate giocano tra loro. Premi di nuovo “Genera” per un’altra soluzione.'}};
 let lang='zh';try{lang=localStorage.getItem('lang')||'zh'}catch(e){}
@@ -115,8 +133,9 @@ function gmin(groups,R){return Math.max(1,groups.reduce((s,g)=>s+(g.length>>1),0
 function preset(N,k){const out=[];let s=1;for(let i=0;i<k;i++){const sz=Math.floor(N/k)+(i<N%k?1:0);if(sz>0)out.push(s+'-'+(s+sz-1));s+=sz}return out.join(', ')}
 function advise(N,R,G,groups,restOk){
  const out=[],cands=['1-'+N];if(N>=4){const h=Math.ceil(N/2);cands.push('1-'+h+', '+(h+1)+'-'+N)}
- const cur=JSON.stringify(groups),ok=(gr,r,g)=>!problems(gr,r,g,restOk).length;
+ const cur=JSON.stringify(groups),ok=(gr,r,g,ro=restOk)=>!problems(gr,r,g,ro).length;
  for(const c of cands){const gr=parseGroups(c,N);if(JSON.stringify(gr)!==cur&&ok(gr,R,G)){out.push({k:'aG',a:[c],set:{grp:c}});break}}
+ if(!restOk&&ok(groups,R,G,true)&&!ok(groups,R,G,false))out.push({k:'aRest',a:[],set:{rest:true}});
  for(let r=R-1;r>=1;r--)if(ok(groups,r,G)){out.push({k:'aR',a:[r],set:{R:r}});break}
  for(let g=G+1;g<=G+30;g++)if(ok(groups,R,g)){out.push({k:'aN',a:[g],set:{G:g}});break}
  if(!out.length)for(const c of cands){const gr=parseGroups(c,N);let f=false;for(let r=R;r>=1;r--)if(ok(gr,r,G)){out.push({k:'aC',a:[c,r],set:{grp:c,R:r}});f=true;break}if(f)break}
@@ -153,27 +172,37 @@ function solve(groups,R,G,iters){
   const c2=cost();if(c2<=c||Math.random()<Math.exp((c-c2)/T))c=c2;else undo()}
  return{c,rounds:build()}}
 
-const mk=(a,b)=>'<span class="m" data-t=" '+a+' '+(b||'')+' ">'+(b?a+'-'+b:a)+'</span>';
+const mk=(a,b,cls,tip,id)=>'<span class="m'+(cls?' '+cls:'')+'"'+(id?' id="'+id+'"':'')+(tip?' title="'+tip+'"':'')+' data-t=" '+a+' '+(b||'')+' ">'+(b?a+'-'+b:a)+'</span>';
+let plOpen=false;
+function togglePl(){plOpen=!plOpen;const e=$('plist');e.classList.toggle('open',plOpen);$('plb').textContent=plOpen?T('pLess'):T('pMore',e.querySelectorAll('.extra').length)}
+function goTo(id){const e=$(id);if(!e)return;e.scrollIntoView({behavior:'smooth',block:'center'});e.classList.remove('flash');void e.offsetWidth;e.classList.add('flash')}
 function render(rounds,N,G){
- let html='<h2>'+T('tT')+'</h2><div class="bar"><label class="chk"><span>'+T('hl')+'</span><select id="hl"><option value="">'+T('none')+'</option>'+Array.from({length:N},(_,i)=>'<option>'+(i+1)+'</option>').join('')+'</select></label><button onclick="window.print()">'+T('print')+'</button></div>';
+ let html='<h2>'+T('tT')+'</h2><div class="bar"><label class="chk"><span>'+T('hl')+'</span><select id="hl"><option value="">'+T('none')+'</option>'+Array.from({length:N},(_,i)=>'<option>'+(i+1)+'</option>').join('')+'</select></label><button onclick="window.print()">'+T('print')+'</button></div>%%LG%%';
  html+='<div class="card wrap"><table><thead><tr><th>'+T('turn')+'</th>'+Array.from({length:G},(_,i)=>'<th>'+T('gm')+(i+1)+'</th>').join('')+'<th>'+T('restC')+'</th></tr></thead><tbody>';
- const seq={},opp=new Set();let repOpp=0,repG=0,conf=0;const tsv=[[T('turn'),T('gm'),T('team')+' A',T('team')+' B'].join('\t')];
- for(let t=1;t<=N;t++)seq[t]=[];
- rounds.forEach((ms,r)=>{const cells=Array.from({length:G},()=>[]);const pl=new Set();const used=new Set();
-  ms.forEach(([a,b,g])=>{cells[g].push(mk(a,b));pl.add(a);pl.add(b);tsv.push((r+1)+'\tG'+(g+1)+'\t'+a+'\t'+b);
-   if(used.has(g))conf++;used.add(g);
-   const p=Math.min(a,b)+'_'+Math.max(a,b);if(opp.has(p))repOpp++;opp.add(p)});
+ const seq={},opp={},seenG={},probs=[];let repOpp=0,repG=0,conf=0;const tsv=[[T('turn'),T('gm'),T('team')+' A',T('team')+' B'].join('\t')];
+ for(let t=1;t<=N;t++){seq[t]=[];seenG[t]={}}
+ rounds.forEach((ms,r)=>{const cells=Array.from({length:G},()=>[]),prs=Array.from({length:G},()=>[]);const pl=new Set();
+  ms.forEach(([a,b,g])=>{pl.add(a);pl.add(b);tsv.push((r+1)+'\tG'+(g+1)+'\t'+a+'\t'+b);
+   const id='m'+r+'_'+a+'_'+b,cls=[],tips=[];
+   [a,b].forEach(t=>{if(seenG[t][g]!==undefined){repG++;cls.push('rg');const tx=T('pRepG',t,g+1,seenG[t][g]+1,r+1);tips.push(tx);probs.push({id,tx,k:'g'})}else seenG[t][g]=r});
+   const p=Math.min(a,b)+'-'+Math.max(a,b);
+   if(opp[p]!==undefined){repOpp++;cls.push('ro');const tx=T('pRepO',p,opp[p]+1,r+1);tips.push(tx);probs.push({id,tx,k:'o'})}else opp[p]=r;
+   cells[g].push(mk(a,b,cls.join(' '),tips.join(' / '),id));prs[g].push(a+'-'+b)});
+  cells.forEach((c,g)=>{if(c.length>1){conf+=c.length-1;probs.push({k:'c',id:'c'+r+'_'+g,tx:T('pConf',r+1,g+1,prs[g].join(' + '))})}});
   for(let t=1;t<=N;t++){const m=ms.find(x=>x[0]==t||x[1]==t);seq[t].push(m?m[2]+1:null)}
   const idle=[];for(let t=1;t<=N;t++)if(!pl.has(t))idle.push(mk(t));
-  html+='<tr><td><b>'+(r+1)+'</b></td>'+cells.map(c=>c.length?'<td>'+c.join(' · ')+'</td>':'<td class="e">–</td>').join('')+'<td class="r">'+(idle.join(', ')||'–')+'</td></tr>'});
- html+='</tbody></table></div><h2>'+T('oT')+'</h2><div class="card teams">';
- for(let t=1;t<=N;t++){const s=seq[t];const seen=new Set();s.forEach(g=>{if(g!==null){if(seen.has(g))repG++;seen.add(g)}});
-  html+='<div><b>'+T('team')+' '+t+':</b> '+s.map(g=>g===null?'<span class="mut">'+T('restW')+'</span>':g).join(', ')+'</div>'}
- html+='</div><h2 id="xl">'+T('xT')+'</h2><div id="xl"><div class="bar"><button id="cp">'+T('copy')+'</button></div><textarea id="ta" readonly>'+tsv.join('\n')+'</textarea></div>';
- return{html,repOpp,repG,conf}}
+  html+='<tr><td><b>'+(r+1)+'</b></td>'+cells.map((c,g)=>c.length?'<td'+(c.length>1?' class="cf" id="c'+r+'_'+g+'"':'')+'>'+c.join(' · ')+'</td>':'<td class="e">–</td>').join('')+'<td class="r">'+(idle.join(', ')||'–')+'</td></tr>'});
+ html+='</tbody></table></div><h2>'+T('oT')+'</h2><div class="card wrap"><table class="tm"><thead><tr><th>'+T('team')+' \\ '+T('turn')+'</th>'+rounds.map((_,i)=>'<th>'+(i+1)+'</th>').join('')+'</tr></thead><tbody>';
+ for(let t=1;t<=N;t++){const seen={};
+  html+='<tr><th>'+t+'</th>'+seq[t].map((g,i)=>{if(g===null)return '<td class="e" title="'+T('restW')+'">–</td>';
+   const d=seen[g]!==undefined;if(!d)seen[g]=i;
+   return d?'<td><span class="m rg" title="'+T('pRepG',t,g,seen[g]+1,i+1)+'">'+g+'</span></td>':'<td>'+g+'</td>'}).join('')+'</tr>'}
+ html+='</tbody></table></div><h2 id="xl">'+T('xT')+'</h2><div id="xl"><div class="bar"><button id="cp">'+T('copy')+'</button></div><textarea id="ta" readonly>'+tsv.join('\n')+'</textarea></div>';
+ const lg=probs.length?'<div class="legend">'+[['c','lgC'],['g','lgG'],['o','lgO']].map(([k,l])=>'<span><span class="sw k-'+k+'"></span>'+T(l)+'</span>').join('')+'</div>':'';
+ return{html:html.replace('%%LG%%',lg),repOpp,repG,conf,probs}}
 
 let sugg=[],last=null;
-function applySug(i){const s=sugg[i].set;if(s.grp!==undefined)$('grp').value=s.grp;if(s.R)$('R').value=s.R;if(s.G)$('G').value=s.G;run()}
+function applySug(i){const s=sugg[i].set;if(s.grp!==undefined)$('grp').value=s.grp;if(s.R)$('R').value=s.R;if(s.G)$('G').value=s.G;if(s.rest)$('rest').checked=true;run()}
 function show(){
  if(!last)return;const{b,g,pre,gm,N,R,G,groups,restOk}=last;
  const o=render(b.rounds,N,g);$('out').innerHTML=o.html;
@@ -181,10 +210,11 @@ function show(){
  msg.push(okAll?'<span class="ok">'+T('okSol',g,G)+'</span>':'<span class="bad">'+T('badSol',o.repG,o.conf)+'</span>');
  msg.push(o.repOpp?'<span class="bad">'+T('oppBad',o.repOpp)+'</span>':'<span class="ok">'+T('oppOk')+'</span>');
  groups.forEach(gr=>{if(gr.length%2&&!restOk)msg.push('<span class="bad">'+T('odd',gr.length)+'</span>')});
- $('msg').innerHTML=msg.join('<br>');
- $('stats').innerHTML=[[T('sMin'),gm],[T('sUsed'),g],[T('sOpp'),o.repOpp],[T('sRep'),o.repG+o.conf]].map(([l,v])=>'<div class="stat"><b>'+v+'</b><span>'+l+'</span></div>').join('');$('stats').hidden=false;
+ $('msg').className='msg banner '+(okAll&&!o.repOpp&&msg.length==2?'good':'warn');$('msg').innerHTML=msg.join('<br>');
+ $('stats').innerHTML=[[g,T('sUsed')+' ('+T('sMin')+': '+gm+')',''],[o.probs.length,T('sProb'),o.probs.length?'bad':'ok']].map(([v,l,c])=>'<div class="stat"><b class="'+c+'">'+v+'</b><span>'+l+'</span></div>').join('');$('stats').hidden=false;
+ $('plist').innerHTML=o.probs.length?'<b>'+T('pT')+'</b>'+o.probs.map((p,i)=>'<div class="k-'+p.k+(i>=3?' extra':'')+'" role="button" tabindex="0" onclick="goTo(\''+p.id+'\')"><span>'+p.tx+'</span></div>').join('')+(o.probs.length>3?'<button id="plb" onclick="togglePl()">'+T(plOpen?'pLess':'pMore',o.probs.length-3)+'</button>':''):'';$('plist').classList.toggle('open',plOpen);$('plist').hidden=!o.probs.length;
  if(!okAll||o.repOpp||pre.length){sugg=advise(N,R,G,groups,restOk);
-  $('adv').innerHTML='<b>'+T('advT')+'</b> <span class="mut">'+T('advS')+'</span>'+sugg.map((s,k)=>'<div><span>'+T(s.k,...s.a)+'</span><button onclick="applySug('+k+')">'+T('apply')+'</button></div>').join('');$('adv').hidden=false}
+  $('adv').innerHTML='<b>'+T('advT')+'</b>'+sugg.map((s,k)=>'<div><span>'+T(s.k,...s.a)+'</span><button onclick="applySug('+k+')">'+T('apply')+'</button></div>').join('');$('adv').hidden=false}
  else $('adv').hidden=true;
  $('hl').onchange=e=>{const v=e.target.value;document.querySelectorAll('.m').forEach(x=>x.classList.toggle('hl',!!v&&x.dataset.t.includes(' '+v+' ')))};
  $('cp').onclick=()=>{const ta=$('ta');ta.select();try{navigator.clipboard.writeText(ta.value)}catch(e){try{document.execCommand('copy')}catch(_){}}$('cp').textContent=T('copied')}}
@@ -195,9 +225,9 @@ function run(){
  if(!groups.length){$('msg').innerHTML='<span class="bad">'+T('needGroup')+'</span>';return}
  const pre=problems(groups,R,G,restOk),gm=gmin(groups,R);
  const tries=[];if(auto&&gm<=G){for(let g=gm;g<=G;g++)tries.push(g)}else tries.push(G);
- $('go').disabled=true;$('adv').hidden=true;$('stats').hidden=true;let i=0;
+ $('go').disabled=true;$('adv').hidden=true;$('plist').hidden=true;$('stats').hidden=true;let i=0;
  const step=()=>{const g=tries[i],lastTry=i==tries.length-1;
-  $('msg').innerHTML=T('calc',g);
+  $('msg').className='msg';$('msg').innerHTML=T('calc',g);
   setTimeout(()=>{let b=null;const att=lastTry?3:2;
    for(let k=0;k<att;k++){const s=solve(groups,R,g,lastTry?80000:40000);if(!b||s.c<b.c)b=s;if(b.c<50)break}
    if(b.c<50||lastTry){last={b,g,pre,gm,N,R,G,groups,restOk};show();$('go').disabled=false}else{i++;step()}},20)};
