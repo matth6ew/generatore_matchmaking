@@ -56,7 +56,17 @@ td.cf{background:var(--cbg)!important;box-shadow:inset 0 0 0 2px var(--cfg)}
 .flash{animation:fl 1.8s}@keyframes fl{0%,55%{box-shadow:inset 0 0 0 3px var(--ac)}100%{box-shadow:inset 0 0 0 0 transparent}}
 .teams{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:6px 14px;font-size:14px}
 textarea{width:100%;height:110px;font:12px monospace;background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-radius:8px;padding:8px}
-@media print{header,.card:first-of-type,.bar,textarea,.foot,#xl{display:none}body{background:#fff}}
+@page{margin:12mm}
+@media print{
+:root{--bg:#fff;--fg:#000;--mut:#555;--card:#fff;--bd:#888;--rest:#eee;--soft:#f2f2f2;--ac:#2b6cb0;--ok:#1a7f4b;--bad:#b42318;--cbg:#fde2df;--cfg:#9b1c10;--gbg:#ffe0b0;--gfg:#7a4300;--obg:#e4d9fb;--ofg:#52289e;color-scheme:light}
+*{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+body{background:#fff;font-size:12px}main{max-width:none;padding:0}
+.lang,.sub,.card:first-of-type,.bar,textarea,.foot,#xl{display:none}
+h1{font-size:18px}h2{margin:14px 0 6px;break-after:avoid}
+.card{border:0;padding:0;border-radius:0}.wrap{overflow:visible}
+table{font-size:12px}th,td{padding:4px 6px;white-space:normal}th{position:static}
+tr{break-inside:avoid}
+}
 </style></head><body><main>
 <header><div><h1 data-i="title"></h1><p class="sub" data-i="sub"></p></div>
 <div class="lang"><button id="l-zh">中文</button><button id="l-it">Italiano</button></div></header>
